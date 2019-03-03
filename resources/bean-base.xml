@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/data/jpa
+        http://www.springframework.org/schema/data/jpa/spring-jpa-1.2.xsd">
+    <!--引入Properties文件-->
+    <context:property-placeholder location="classpath:database.properties"/>
+
+    <!--配置c3p0的连接池-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${driverClass}"></property>
+        <property name="jdbcUrl" value="${dbUrl}"></property>
+        <property name="user" value="${dbUser}"></property>
+        <property name="password" value="${dbPSW}"></property>
+        <property name="acquireIncrement" value="${acquireIncrement}"></property>
+        <property name="maxPoolSize" value="${maxPoolSize}"></property>
+        <property name="minPoolSize" value="${minPoolSize}"></property>
+        <property name="maxStatements" value="${maxStatements}"></property>
+    </bean>
+
+    <!--配置JPA实现产品的适配器-->
+    <bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+    </bean>
+
+    <!--配置EntityManager对象-->
+
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSource"></property>
+        <!--扫描entity包的-->
+        <property name="packagesToScan" value="com.zzy.pojo"></property>
+        <!--注入JPA实现产品的适配器-->
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter"></property>
+        <!--配置的是Hibernate的其他配置  除了连接数据库4大要素之外的其余配置-->
+        <property name="jpaProperties">
+            <props>
+                <!--是否自动创建表 -->
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+                <!--配置是否展示SQL-->
+                <prop key="hibernate.show_sql">true</prop>
+                <!--是否格式化SQL-->
+                <prop key="hibernate.format_sql">true</prop>
+                <!--连接数据库的方言-->
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--配置事务环境-->
+
+    <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <!--注入dataSource-->
+        <property name="dataSource" ref="dataSource"></property>
+        <!--注入entityManagerFactory对象-->
+        <property name="entityManagerFactory" ref="entityManagerFactory"></property>
+    </bean>
+
+    <!--使用事务-->
+    <tx:annotation-driven transaction-manager="jpaTransactionManager"/>
+
+    <!--配置AOP的自动代理-->
+    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+
+    <!--配置Spring的包扫描-->
+    <context:component-scan base-package="com.zzy"></context:component-scan>
+
+    <!--Spring data的包的扫描  这里的扫描扫描的是DAO层所在的位置-->
+    <jpa:repositories base-package="com.zzy.repository" entity-manager-factory-ref="entityManagerFactory"
+                      transaction-manager-ref="jpaTransactionManager"></jpa:repositories>
+</beans>
