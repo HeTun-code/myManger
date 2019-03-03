@@ -29,6 +29,7 @@ public class AgendaControll {
         if (null != agendaByUserId) {
             returnVo.setAgenda(agendaByUserId);
             returnVo.setMsg("查找成功");
+            System.out.println("test");
             returnVo.setState(true);
         }else {
             returnVo.setMsg("查找失败");

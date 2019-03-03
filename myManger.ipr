@@ -332,6 +332,9 @@
       </paths>
     </serverData>
   </component>
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+  </component>
   <component name="WebServers">
     <option name="servers">
       <webServer id="9fa0d1db-e5dd-42a6-b447-559d6363e7fa" name="47.101.69.67" url="http://47.101.69.67">
